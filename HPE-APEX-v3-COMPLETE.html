@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HPE Server AI Expert v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --hpe-green: #01A982;
+    --hpe-green-dark: #007A5E;
+    --hpe-green-glow: rgba(1, 169, 130, 0.18);
+    --hpe-accent: #00E8C6;
+    --bg-deep: #05080D;
+    --bg-panel: #0B1018;
+    --bg-card: #101820;
+    --bg-input: #0D1520;
+    --border: rgba(1, 169, 130, 0.22);
+    --border-bright: rgba(1, 169, 130, 0.55);
+    --text-primary: #E8F4F0;
+    --text-secondary: #7ABFAD;
+    --text-muted: #3D6B5E;
+    --text-code: #00E8C6;
+    --user-bubble: #0D2B24;
+    --ai-bubble: #0A1C18;
+    --red: #FF4B6E;
+    --amber: #FFB347;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(1,169,130,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(1,169,130,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -40%;
+    left: -20%;
+    width: 60%;
+    height: 70%;
+    background: radial-gradient(ellipse, rgba(1,169,130,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 64px;
+    background: linear-gradient(180deg, rgba(11,16,24,0.98) 0%, rgba(11,16,24,0.92) 100%);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    backdrop-filter: blur(12px);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .hpe-logo-badge {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--hpe-green);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: #fff;
+  }
+
+  .header-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border-bright);
+  }
+
+  .header-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--text-primary);
+    text-transform: uppercase;
+  }
+
+  .header-subtitle {
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 0.06em;
+    margin-top: 1px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--hpe-green);
+    box-shadow: 0 0 8px var(--hpe-green);
+    animation: pulse-dot 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--hpe-green); }
+    50% { opacity: 0.6; box-shadow: 0 0 14px var(--hpe-green), 0 0 28px rgba(1,169,130,0.3); }
+  }
+
+  .clear-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 5px 13px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .clear-btn:hover {
+    border-color: var(--hpe-green);
+    color: var(--hpe-green);
+    background: var(--hpe-green-glow);
+  }
+
+  /* ─── QUICK TOPICS ─── */
+  .topics-bar {
+    position: relative;
+    z-index: 9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 28px;
+    background: rgba(10,14,20,0.85);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+  }
+  .topics-bar::-webkit-scrollbar { display: none; }
+
+  .topic-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-right: 8px;
+  }
+
+  .topic-chip {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 4px 13px;
+    border-radius: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+  }
+  .topic-chip:hover {
+    background: var(--hpe-green-glow);
+    border-color: var(--hpe-green);
+    color: var(--hpe-accent);
+  }
+
+  /* ─── CHAT AREA ─── */
+  .chat-wrapper {
+    position: relative;
+    z-index: 5;
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .chat-wrapper::-webkit-scrollbar { width: 4px; }
+  .chat-wrapper::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .chat-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Welcome State */
+  .welcome-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    text-align: center;
+    gap: 20px;
+    padding: 40px 0;
+  }
+
+  .welcome-icon {
+    width: 72px;
+    height: 72px;
+    border: 1.5px solid var(--hpe-green);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 30px var(--hpe-green-glow), inset 0 0 20px rgba(1,169,130,0.05);
+  }
+
+  .welcome-icon svg {
+    width: 36px;
+    height: 36px;
+    stroke: var(--hpe-green);
+    fill: none;
+    stroke-width: 1.5;
+  }
+
+  .welcome-icon::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 1px solid rgba(1,169,130,0.12);
+    border-radius: 12px;
+    animation: icon-ring 3s ease-in-out infinite;
+  }
+
+  @keyframes icon-ring {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.04); }
+  }
+
+  .welcome-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .welcome-title span { color: var(--hpe-green); }
+
+  .welcome-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    max-width: 520px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .welcome-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 600px;
+  }
+
+  .welcome-tag {
+    background: rgba(1,169,130,0.07);
+    border: 1px solid rgba(1,169,130,0.2);
+    color: var(--text-secondary);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── MESSAGES ─── */
+  .message {
+    display: flex;
+    gap: 14px;
+    animation: msg-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  .msg-avatar.ai {
+    background: linear-gradient(135deg, #0D2A22, #0A1C18);
+    border: 1px solid var(--border-bright);
+    color: var(--hpe-green);
+  }
+
+  .msg-avatar.user {
+    background: linear-gradient(135deg, #0D2A22, #061812);
+    border: 1px solid rgba(1,169,130,0.3);
+    color: var(--hpe-accent);
+  }
+
+  .msg-body { flex: 1; min-width: 0; }
+
+  .msg-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .message.user .msg-meta { flex-direction: row-reverse; }
+
+  .msg-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .msg-name.ai { color: var(--hpe-green); }
+  .msg-name.user { color: var(--hpe-accent); }
+
+  .msg-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9.5px;
+    color: var(--text-muted);
+  }
+
+  .msg-bubble {
+    padding: 14px 18px;
+    border-radius: 4px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    font-weight: 400;
+    max-width: 100%;
+    word-wrap: break-word;
+  }
+
+  .msg-bubble.ai {
+    background: var(--ai-bubble);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--hpe-green);
+    color: var(--text-primary);
+  }
+
+  .msg-bubble.user {
+    background: var(--user-bubble);
+    border: 1px solid rgba(1,169,130,0.25);
+    border-right: 3px solid var(--hpe-accent);
+    color: var(--text-primary);
+    text-align: left;
+  }
+
+  /* Markdown in messages */
+  .msg-bubble h1, .msg-bubble h2, .msg-bubble h3 {
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--hpe-accent);
+    margin: 14px 0 6px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .msg-bubble h1 { font-size: 18px; }
+  .msg-bubble h2 { font-size: 16px; }
+  .msg-bubble h3 { font-size: 14px; color: var(--hpe-green); }
+
+  .msg-bubble p { margin-bottom: 10px; }
+  .msg-bubble p:last-child { margin-bottom: 0; }
+
+  .msg-bubble strong {
+    color: var(--hpe-accent);
+    font-weight: 600;
+  }
+
+  .msg-bubble em { color: var(--text-secondary); font-style: italic; }
+
+  .msg-bubble code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--text-code);
+    background: rgba(0,232,198,0.07);
+    border: 1px solid rgba(0,232,198,0.15);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  .msg-bubble pre {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--text-code);
+    padding: 12px 16px;
+    border-radius: 3px;
+    margin: 10px 0;
+    overflow-x: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--text-code);
+    line-height: 1.6;
+  }
+
+  .msg-bubble ul, .msg-bubble ol {
+    padding-left: 18px;
+    margin: 8px 0;
+  }
+
+  .msg-bubble li {
+    margin-bottom: 5px;
+    color: var(--text-primary);
+  }
+
+  .msg-bubble li::marker { color: var(--hpe-green); }
+
+  .msg-bubble table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin: 12px 0;
+  }
+  .msg-bubble th {
+    background: rgba(1,169,130,0.1);
+    color: var(--hpe-accent);
+    padding: 7px 12px;
+    text-align: left;
+    border: 1px solid var(--border);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  .msg-bubble td {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  .msg-bubble tr:nth-child(even) td { background: rgba(1,169,130,0.03); }
+
+  .msg-bubble blockquote {
+    border-left: 3px solid var(--amber);
+    padding: 8px 14px;
+    margin: 10px 0;
+    background: rgba(255,179,71,0.05);
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 13px;
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 14px 18px;
+    background: var(--ai-bubble);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--hpe-green);
+    border-radius: 4px;
+  }
+
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--hpe-green);
+    border-radius: 50%;
+    animation: typing-bounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  .typing-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10.5px;
+    color: var(--hpe-green);
+    margin-left: 8px;
+    letter-spacing: 0.06em;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ─── INPUT AREA ─── */
+  .input-area {
+    position: relative;
+    z-index: 10;
+    padding: 16px 24px 20px;
+    background: linear-gradient(0deg, rgba(5,8,13,0.99) 0%, rgba(5,8,13,0.92) 100%);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    flex-shrink: 0;
+  }
+
+  .input-container {
+    max-width: 820px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .input-box {
+    flex: 1;
+    position: relative;
+  }
+
+  .input-box::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, var(--hpe-green), var(--hpe-accent), var(--hpe-green));
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .input-box:focus-within::before { opacity: 0.4; }
+
+  textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 400;
+    line-height: 1.6;
+    padding: 12px 16px;
+    resize: none;
+    outline: none;
+    min-height: 48px;
+    max-height: 140px;
+    transition: border-color 0.2s;
+    letter-spacing: 0.01em;
+  }
+
+  textarea::placeholder { color: var(--text-muted); }
+  textarea:focus { border-color: var(--hpe-green); }
+
+  .send-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    background: var(--hpe-green);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .send-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  }
+
+  .send-btn:hover {
+    background: var(--hpe-green-dark);
+    box-shadow: 0 0 20px rgba(1,169,130,0.4);
+    transform: translateY(-1px);
+  }
+
+  .send-btn:active { transform: translateY(0); }
+  .send-btn:disabled { background: var(--border); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .send-btn svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; position: relative; z-index: 1; }
+
+  .input-footer {
+    max-width: 820px;
+    margin: 8px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .input-hint {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .model-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(1,169,130,0.2) transparent;
+  }
+
+  /* Error message */
+  .error-bubble {
+    padding: 10px 16px;
+    background: rgba(255,75,110,0.07);
+    border: 1px solid rgba(255,75,110,0.25);
+    border-left: 3px solid var(--red);
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #FF8BA0;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.03em;
+  }
+
+  /* ─── API KEY BANNER ─── */
+  .apikey-banner {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 28px;
+    background: linear-gradient(90deg, rgba(255,179,71,0.07), rgba(255,179,71,0.03));
+    border-bottom: 1px solid rgba(255,179,71,0.3);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .apikey-banner.connected {
+    background: linear-gradient(90deg, rgba(1,169,130,0.07), rgba(1,169,130,0.02));
+    border-bottom-color: rgba(1,169,130,0.25);
+  }
+
+  .apikey-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    color: var(--amber);
+    white-space: nowrap;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .apikey-banner.connected .apikey-label { color: var(--hpe-green); }
+
+  .provider-select {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,179,71,0.35);
+    border-radius: 3px;
+    color: var(--amber);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    outline: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .provider-select option { background: #0B1018; color: var(--text-primary); }
+  .apikey-banner.connected .provider-select { border-color: rgba(1,169,130,0.4); color: var(--hpe-green); }
+
+  .apikey-input {
+    flex: 2;
+    min-width: 160px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,179,71,0.35);
+    border-radius: 3px;
+    color: var(--amber);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11.5px;
+    padding: 5px 12px;
+    outline: none;
+    letter-spacing: 0.04em;
+    max-width: 320px;
+    transition: all 0.2s;
+  }
+
+  .model-input {
+    flex: 1;
+    min-width: 120px;
+    max-width: 200px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,179,71,0.2);
+    border-radius: 3px;
+    color: var(--text-secondary);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    outline: none;
+    letter-spacing: 0.03em;
+    transition: all 0.2s;
+  }
+
+  .model-input::placeholder { color: var(--text-muted); }
+  .model-input:focus { border-color: rgba(255,179,71,0.5); }
+
+  .apikey-input::placeholder { color: rgba(255,179,71,0.35); }
+  .apikey-banner.connected .apikey-input { border-color: rgba(1,169,130,0.4); color: var(--hpe-green); }
+  .apikey-input:focus { border-color: var(--amber); box-shadow: 0 0 10px rgba(255,179,71,0.12); }
+
+  .apikey-save-btn {
+    background: rgba(255,179,71,0.12);
+    border: 1px solid rgba(255,179,71,0.4);
+    color: var(--amber);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+    padding: 5px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .apikey-save-btn:hover { background: rgba(255,179,71,0.22); }
+  .apikey-banner.connected .apikey-save-btn {
+    background: rgba(1,169,130,0.1);
+    border-color: rgba(1,169,130,0.4);
+    color: var(--hpe-green);
+  }
+
+  .apikey-status {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .apikey-banner.connected .apikey-status { color: var(--hpe-green); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header { padding: 0 16px; }
+    .topics-bar { padding: 8px 16px; }
+    .apikey-banner { padding: 8px 14px; flex-wrap: wrap; }
+    .apikey-input { max-width: 100%; }
+    .chat-inner { padding: 0 14px; }
+    .input-area { padding: 12px 14px 16px; }
+    .header-title { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="hpe-logo-badge">HPE</div>
+    <div class="header-divider"></div>
+    <div>
+      <div class="header-title">Server Intelligence</div>
+      <div class="header-subtitle">AI-POWERED HARDWARE EXPERT v2 · BROADCOM · MICROCHIP · HPE</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <span>SYSTEM ONLINE</span>
+    </div>
+    <button class="clear-btn" onclick="clearChat()">CLEAR</button>
+  </div>
+</header>
+
+<!-- API KEY BANNER -->
+<div class="apikey-banner" id="apikeyBanner">
+  <span class="apikey-label" id="apikeyLabel">⚠ CONNECT AI PROVIDER</span>
+  <select class="provider-select" id="providerSelect" onchange="onProviderChange()">
+    <option value="anthropic">Anthropic (Claude)</option>
+    <option value="openai">OpenAI (ChatGPT)</option>
+    <option value="google">Google (Gemini)</option>
+    <option value="groq">Groq (Llama / Mixtral)</option>
+    <option value="openrouter">OpenRouter (Any Model)</option>
+    <option value="perplexity">Perplexity AI</option>
+    <option value="mistral">Mistral AI</option>
+    <option value="cohere">Cohere</option>
+    <option value="custom">Custom / Other</option>
+  </select>
+  <input
+    class="apikey-input"
+    id="apikeyInput"
+    type="password"
+    placeholder="Paste your API key here..."
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <input
+    class="model-input"
+    id="modelInput"
+    type="text"
+    placeholder="Model (auto-filled)"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <button class="apikey-save-btn" onclick="saveApiKey()">CONNECT</button>
+  <span class="apikey-status" id="apikeyStatus">Not connected</span>
+</div>
+
+<!-- QUICK TOPICS BAR -->
+<div class="topics-bar">
+  <span class="topic-label">Try:</span>
+  <button class="topic-chip" onclick="quickTopic('Explain RAID 5, RAID 6, and RAID 10 in detail — performance, rebuild time, use cases, and when NOT to use each')">📖 Explain RAID Levels</button>
+  <button class="topic-chip" onclick="quickTopic('Compare Broadcom MR932i-p vs MR216i-a vs MR416i-a — specs table, cache, ports, use case recommendation')">⚖️ Compare MR Controllers</button>
+  <button class="topic-chip" onclick="quickTopic('Write a Python script to reset HPE iLO using Redfish API. iLO IP: 192.168.1.100, username: Administrator, password: MyPass123')">🤖 Automate iLO Reset</button>
+  <button class="topic-chip" onclick="quickTopic('Steps to create a RAID 5 array using StorCLI2 on Broadcom MR932i-p controller')">📋 RAID Create Procedure</button>
+  <button class="topic-chip" onclick="quickTopic('HPE ProLiant DL380 Gen11 drive bay shows amber LED — diagnose the issue')">🔴 Diagnose Drive Fault</button>
+  <button class="topic-chip" onclick="quickTopic('Explain UBM types 1 2 3 4 in HPE Gen11 servers — what each supports and when to use which')">📖 Explain UBM Types</button>
+  <button class="topic-chip" onclick="quickTopic('Write a Python script to collect IML logs from multiple HPE servers via iLO Redfish API. Read server IPs from a CSV file.')">🤖 Bulk IML Log Script</button>
+  <button class="topic-chip" onclick="quickTopic('What is the difference between HPE Smart Array SR and Broadcom MR controllers — architecture, driver, tools')">⚖️ SR vs MR Controllers</button>
+  <button class="topic-chip" onclick="quickTopic('Explain how HPE iLO 6 Silicon Root of Trust works')">📖 iLO 6 Security</button>
+  <button class="topic-chip" onclick="quickTopic('Write a Bash script to check RAID rebuild status on Broadcom MR controller using StorCLI2 and send alert if rebuild percentage drops')">🤖 RAID Monitor Script</button>
+  <button class="topic-chip" onclick="quickTopic('HPE server SSH not connecting after reboot — diagnose cause and exact fix steps')">🔴 SSH Not Connecting</button>
+  <button class="topic-chip" onclick="quickTopic('What are the max drives, cache size, and port count for HPE MR932i-p controller?')">⚡ MR932i-p Quick Specs</button>
+</div>
+
+<!-- CHAT AREA -->
+<div class="chat-wrapper" id="chatWrapper">
+  <div class="chat-inner" id="chatInner">
+
+    <div class="welcome-screen" id="welcomeScreen">
+      <div class="welcome-icon">
+        <svg viewBox="0 0 24 24">
+          <rect x="2" y="2" width="20" height="8" rx="1"/>
+          <rect x="2" y="14" width="20" height="8" rx="1"/>
+          <circle cx="6" cy="6" r="1" fill="currentColor" stroke="none"/>
+          <circle cx="6" cy="18" r="1" fill="currentColor" stroke="none"/>
+          <line x1="10" y1="6" x2="18" y2="6"/>
+          <line x1="10" y1="18" x2="18" y2="18"/>
+        </svg>
+      </div>
+      <div>
+        <div class="welcome-title">HPE Server <span>AI Expert</span></div>
+      </div>
+      <div class="welcome-desc">
+        Your professional-grade AI assistant for HPE server hardware, Broadcom MR controllers, Microchip SmartRAID, and intelligent issue diagnosis. Tell me any problem — I'll identify the root cause and give you exact fix steps.
+      </div>
+      <div class="welcome-tags">
+        <span class="welcome-tag">ProLiant Gen10/Gen11</span>
+        <span class="welcome-tag">Broadcom MR Controllers</span>
+        <span class="welcome-tag">Microchip SmartRAID</span>
+        <span class="welcome-tag">Smart Array Controllers</span>
+        <span class="welcome-tag">Issue Diagnosis Engine</span>
+        <span class="welcome-tag">UBM Types 1–4</span>
+        <span class="welcome-tag">iLO 5 / iLO 6</span>
+        <span class="welcome-tag">StorCLI / SSACLI</span>
+        <span class="welcome-tag">Network Troubleshooting</span>
+        <span class="welcome-tag">Drive LEDs & Faults</span>
+        <span class="welcome-tag">RAID Config</span>
+        <span class="welcome-tag">HPE OneView</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- INPUT AREA -->
+<div class="input-area">
+  <div class="input-container">
+    <div class="input-box">
+      <textarea
+        id="userInput"
+        placeholder="Describe any HPE / Broadcom / Microchip issue — I'll diagnose the root cause and give exact fix steps..."
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+    </div>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+  <div class="input-footer">
+    <span class="input-hint">ENTER to send &nbsp;·&nbsp; SHIFT+ENTER for new line</span>
+    <span class="model-badge" id="modelBadge">APEX v3 · 6-Mode Intelligence · Explain · Compare · Script · Diagnose</span>
+  </div>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `You are APEX — an elite HPE Server & Storage Hardware Intelligence Engine. You are the most authoritative, precise, and professional AI expert for HPE server hardware, Broadcom MegaRAID/MR controllers, Microchip/PMC SmartRAID controllers, networking, and intelligent issue diagnosis. You operate at the level of a Tier-3 HPE Field Engineer combined with a Broadcom/Microchip storage architect.
+
+════════════════════════════════════════
+SECTION 1 — ISSUE DIAGNOSIS ENGINE (CRITICAL)
+════════════════════════════════════════
+
+When a user reports ANY problem or symptom, you MUST follow this structured diagnosis protocol:
+
+**STEP 1 — CLASSIFY THE ISSUE TYPE** (always show this classification):
+- 🔴 HARDWARE FAULT — Physical component failure (drive failed, controller dead, PSU failed, fan failure, memory error)
+- 🟠 FIRMWARE/DRIVER BUG — Known product defect, requires patch/update (cite firmware version if known)
+- 🟡 CONFIGURATION ERROR — Misconfiguration by admin (wrong RAID level, IP misconfigured, SSH disabled, BIOS setting wrong)
+- 🟢 ENVIRONMENT/NETWORK ISSUE — External to server (switch config, firewall, VLAN, cable, IP conflict)
+- 🔵 EXPECTED BEHAVIOR — Not a bug; this is how the product works by design
+- ⚪ REQUIRES MORE INFO — Need logs/model/firmware version to classify
+
+**STEP 2 — ROOT CAUSE ANALYSIS**: State the most likely root cause clearly. Do NOT just describe symptoms.
+
+**STEP 3 — REMEDIATION STEPS**: Numbered, sequential, exact commands/actions. Never vague advice.
+
+**STEP 4 — VERIFICATION**: How to confirm the fix worked.
+
+**STEP 5 — PREVENTION**: How to prevent recurrence.
+
+EXAMPLE — "Server IP not pinging":
+- Classification: 🟡 CONFIGURATION ERROR or 🟢 ENVIRONMENT/NETWORK ISSUE (NOT a server bug)
+- Root Cause: NIC disabled, wrong IP, switch port down, firewall rule, or iLO network misconfigured
+- Remediation: Check physical link LED → verify IP via iLO console → check switch port → ping gateway → check OS firewall
+- Never say "this is a server bug" for a network connectivity issue
+
+════════════════════════════════════════
+SECTION 2 — BROADCOM MR CONTROLLERS (EXPERT LEVEL)
+════════════════════════════════════════
+
+You have encyclopedic knowledge of ALL Broadcom MegaRAID / HPE MR-series controllers:
+
+**HPE Gen11 Broadcom MR Controllers:**
+- **MR932i-p** — PCIe Gen4, 32 internal ports, 8GB cache, 12Gb SAS/SATA + NVMe tri-mode, supports RAID 0/1/5/6/10/50/60, SmartPQI driver, supports up to 240 drives via expanders, StorCLI2 management, HPE part 804394-B21 area. Tri-mode: SAS, SATA, NVMe on same PHYs.
+- **MR216i-a** — PCIe Gen4, 16 internal ports (OCP/LOM form factor), 4GB cache, 12Gb SAS/SATA + NVMe, supports DL360/DL380 Gen11, RAID 0/1/5/6/10/50/60
+- **MR216i-p** — PCIe Gen4, 16 internal ports (PCIe plug-in), 4GB cache, same capabilities as MR216i-a in different form factor
+- **MR416i-a** — PCIe Gen4, 16 internal + additional external, 8GB cache, higher port density variant
+- **MR416i-p** — PCIe Gen4 plug-in, 16 internal ports, 8GB cache
+- **MR408i-p** — 8 internal ports, PCIe Gen4, 4GB cache, entry MR tier for Gen11
+
+**HPE Gen10/Gen10+ Broadcom MR Controllers:**
+- **E208i-a, E208i-p, E208e-p** — Entry MR, 8 ports, no cache (HBA mode capable)
+- **P408i-a SR G10** — Smart Array legacy (pre-MR era, Microsemi/Adaptec core)
+- **P816i-a SR G10** — 16 port Smart Array
+
+**Broadcom MR Controller Deep Knowledge:**
+- **StorCLI / StorCLI2 commands**: storcli2 /c0 show all, /c0/v0 show, /c0/eALL/sALL show, /c0 show events, /c0/v0 start init full, /c0/v0 set wrcache=wb/wt/awb
+- **MR vs SR difference**: MR = Mixed RAID (Broadcom silicon), SR = Smart RAID (legacy HPE/Microsemi silicon). MR controllers use SmartPQI Linux driver; SR use hpsa driver
+- **Tri-mode operation**: MR932i-p/MR416 support SAS + SATA + NVMe on same backplane — requires UBM3 backplane
+- **JBOD mode**: Enable via StorCLI2: storcli2 /c0 set jbod=on
+- **Controller cache policies**: Write-Back (WB), Write-Through (WT), Always Write-Back (AWB) — AWB ignores BBU state
+- **BBU (Battery Backup Unit)** for MR controllers: CVPM05 module, charge cycle behavior, learn cycle impact on write performance
+- **Patrol Read**: Background disk scan, configurable schedule, storcli2 /c0 set patrolread=on/off
+- **Consistency Check**: storcli2 /c0/v0 start cc
+- **Foreign config import**: storcli2 /c0/fall import — when drives moved from another controller
+- **Controller events log**: storcli2 /c0 show events — critical for diagnosis
+- **SmartPQI driver**: Linux driver for MR/SR Gen10+ controllers, replaces hpsa for newer models
+- **RAID rebuild**: storcli2 /c0/v0 show rebuild — monitor rebuild progress
+- **Physical drive locate**: storcli2 /c0/e252/s0 start locate
+- **Bad block scan**: storcli2 /c0/e252/s0 show badblocks
+
+════════════════════════════════════════
+SECTION 3 — MICROCHIP / PMC SMARTRAID CONTROLLERS
+════════════════════════════════════════
+
+**Microchip SmartRAID 3000 Series (HPE OEM):**
+- **SmartRAID 3154-16i** — 16 internal ports, 12Gb SAS/SATA, 4GB cache (2GB onboard + 2GB module), PCIe Gen3 x8, RAID 0/1/5/6/10/50/60
+- **SmartRAID 3254-16i** — 16 internal ports, 12Gb SAS/SATA, 8GB cache, PCIe Gen4 x8, enhanced parity RAID
+- **SmartRAID 3254-16e** — 16 external ports, same specs as 3254-16i
+- **SmartRAID 3008-8i** — 8 port, entry level, PCIe Gen3
+- **maxView Storage Manager** — GUI management tool for Microchip SmartRAID
+- **arcconf CLI** — Command-line management: arcconf getconfig 1, arcconf getconfigjson 1, arcconf getlogs 1 device tabular, arcconf rescan
+- **Microchip vs Broadcom MR**: Microchip uses ARCCONF/maxView; Broadcom uses StorCLI2. Different driver stack — Microchip uses smartpqi or aacraid driver depending on generation
+- **Cache protection**: Microchip uses supercapacitor + flash (no battery) — safer for power loss
+- **RAID creation**: arcconf create 1 logicaldrive max r5 0 0 0 1 0 2 noprompt
+- **Drive locate**: arcconf identify 1 device 0 0
+- **Event log**: arcconf getlogs 1 device tabular
+- **Firmware update**: arcconf romupdate 1 — always update controller firmware before OS install
+- **Known Microchip issues**: After firmware update, array may show "Interim Recovery Mode" — this is EXPECTED (🔵), not a bug. Run consistency check to clear.
+
+════════════════════════════════════════
+SECTION 4 — HPE SMART ARRAY (LEGACY SR CONTROLLERS)
+════════════════════════════════════════
+
+- **P408i-a, P408i-p, P816i-a, P408e-p, E208i-a, E208i-p** — Gen10 Smart Array
+- **P100i, NS204i-p** — Gen11 embedded controllers
+- **SSACLI commands**: ssacli ctrl all show status, ssacli ctrl slot=0 ld all show detail, ssacli ctrl slot=0 pd all show detail, ssacli ctrl slot=0 create type=ld drives=1I:1:1,1I:1:2 raid=5
+- **ADU (Array Diagnostic Utility)**: Generate diagnostic report — adu -f report.zip
+- **Array state codes**: OK, Failed, Recovering, Rebuild, Interim Recovery Mode, Erasing, Expanding
+- **HPE SSA GUI**: Accessed via Intelligent Provisioning (F10 at POST) or iLO Virtual Media
+- **FBWC (Flash-Backed Write Cache)**: 4GB module, no battery needed, uses NAND flash
+- **SmartCache**: SSD-based read/write caching using spare SSD as cache tier
+
+════════════════════════════════════════
+SECTION 5 — HPE SERVER PLATFORMS
+════════════════════════════════════════
+
+- **ProLiant DL360 Gen11** — 1U rack, up to 2x Intel Xeon Scalable 4th Gen, 32 DIMM slots, 4x SFF front + 2x SFF rear, OCP 3.0, PCIe Gen5
+- **ProLiant DL380 Gen11** — 2U rack, up to 2x Xeon 4th Gen, 32 DIMM slots, 8/12/24 SFF or 12 LFF, PCIe Gen5, most popular HPE server
+- **ProLiant DL385 Gen11** — AMD EPYC 9004 series, 2U, 24 SFF, PCIe Gen5
+- **ProLiant ML350 Gen11** — Tower/rack convertible, 5U
+- **ProLiant DL560 Gen11** — 4-socket, 2U
+- **HPE Synergy 480 Gen11** — Blade compute module
+- **Apollo 4510** — 4U dense storage, 68 LFF drives
+
+════════════════════════════════════════
+SECTION 6 — DRIVE TECHNOLOGY
+════════════════════════════════════════
+
+- SAS 12Gb (SFF-8639/SFF-8482), SATA 6Gb, NVMe PCIe Gen4/Gen5
+- SFF (2.5"), LFF (3.5"), EDSFF E1.L/E3.S form factors
+- HPE SC (Smart Carrier) — includes drive activity/fault LED intelligence via backplane
+- HPE BC (Basic Carrier) — no LED control from backplane
+- **Drive LED codes**: Solid Amber = Fault/Failed; Blinking Amber = Predictive Failure; Green blink = Activity; Solid Blue = UID locate; Off = No activity
+- **HPE SSD endurance tiers**: RI (Read Intensive, 1 DWPD), MU (Mixed Use, 3 DWPD), WI (Write Intensive, 10 DWPD)
+- **Midline (MDL)** drives: 7.2K RPM, lower cost, higher capacity, RAID 5/6 recommended
+- **Self-Encrypting Drives (SED)**: Require HPE SSD Smart Carrier + controller support + key management
+
+════════════════════════════════════════
+SECTION 7 — UBM (UNIVERSAL BAY MODULE)
+════════════════════════════════════════
+
+- **UBM 1**: SAS/SATA only backplane — connects only to SAS/SATA HBA or Smart Array
+- **UBM 2**: NVMe only — direct PCIe lanes, no SAS/SATA support
+- **UBM 3**: Tri-mode — SAS + SATA + NVMe simultaneously on same drive bays (requires tri-mode controller like MR932i-p)
+- **UBM 4**: NVMe only, different PHY topology than UBM 2, used in newer Gen11 configurations
+- Expander backplane: Uses SAS expander to fan out ports (more drives from fewer controller ports)
+- Non-expander: Direct 1:1 connection from controller port to drive bay
+
+════════════════════════════════════════
+SECTION 8 — NETWORKING & CONNECTIVITY TROUBLESHOOTING
+════════════════════════════════════════
+
+**iLO Network Issues:**
+- iLO IP not pinging → Check: physical NIC link LED on iLO port → correct IP in RBSU/BIOS → dedicated vs shared NIC mode → switch port/VLAN → ARP table on switch → firewall rules
+- iLO web UI not loading → Check: HTTPS port 443 open → browser TLS compatibility → iLO reset (hold NMI button 10s) → iLO factory reset via F9 RBSU
+- SSH to iLO not connecting → Check: SSH enabled in iLO Security settings → port 22 not blocked → key-based auth configured correctly
+
+**OS Network Issues:**
+- OS NIC not getting IP → Check: NIC driver loaded (lspci/dmesg) → DHCP server reachable → OS firewall (iptables/firewalld) → NIC bonding config → VLAN tag mismatch
+- Ping works but SSH fails → SSH service stopped OR port blocked OR SSH disabled in sshd_config → Fix: systemctl start sshd / firewall-cmd --add-service=ssh
+- Intermittent connectivity → Check: duplex mismatch (ethtool ethX) → cable/SFP issue → switch buffer overflow → NIC firmware version
+
+**Common Mistake — Never say these are "server bugs":**
+- IP not pinging = network/config issue, not hardware fault
+- SSH timeout = service not running or firewall, not hardware fault
+- Web UI slow = browser/network latency, not server defect
+
+════════════════════════════════════════
+SECTION 9 — iLO (INTEGRATED LIGHTS-OUT)
+════════════════════════════════════════
+
+- **iLO 5** (Gen10/Gen10+): Dedicated ARM processor, 1GB RAM, supports REST API, Redfish 1.6+
+- **iLO 6** (Gen11): Enhanced security, Silicon Root of Trust, iLO Federation, Project Aurora integration
+- **iLO Licenses**: Standard (basic), Advanced (remote console, Virtual Media, power mgmt), Advanced Premium (Workload Advisor, Analytics)
+- **iLO Reset methods**: Soft reset via GUI > Administration > Reset; Hard reset via iLO physical reset button; Factory reset via F9 RBSU > iLO settings
+- **iLO RESTful API**: GET /redfish/v1/Systems/1/ for system info; POST /redfish/v1/Systems/1/Actions/ComputerSystem.Reset for power actions
+- **iLO SSH commands**: power on/off/reset, fan info, temperature, sel (system event log)
+- **AMS (Agentless Management Service)**: Runs in OS, feeds OS-level health data to iLO without SNMP agents
+
+════════════════════════════════════════
+SECTION 10 — FAN MODULES & THERMAL
+════════════════════════════════════════
+
+- HPE uses N+1 fan redundancy — one fan can fail without thermal shutdown
+- **Hot-plug fans**: Can replace while server running — insert new fan BEFORE removing failed fan in non-redundant configs
+- **Fan LED**: Amber = Failed; Green = OK
+- **High Performance Fan**: Required for high-wattage CPU (>165W TDP) or specific PCIe cards — check HPE QuickSpecs
+- **Thermal zones**: CPU zone, memory zone, PCIe zone — each has independent fan speed control
+- **Fan speed policy**: BIOS setting — Optimal (default), Increased (for ambient >30°C), Maximum (forced full speed)
+- Fan failure → check IML (Integrated Management Log) in iLO → shows which fan slot failed → hot-swap replacement
+
+════════════════════════════════════════
+SECTION 11 — POWER SUBSYSTEM
+════════════════════════════════════════
+
+- HPE Flexible Slot PSUs: 500W, 800W, 1000W, 1600W, 2000W variants
+- Efficiency ratings: 80 PLUS Gold (Platinum), Titanium (96% efficient)
+- Redundant PSU: 1+1 or 2+1 modes; HPE calls it "Hot-plug Redundant"
+- PSU LED: Solid Green = OK; Amber blink = degraded/fault; Off = no power
+- **Power fault diagnosis**: Check IML → identify PSU slot → reseat PSU → test with known-good PSU → check input power
+
+════════════════════════════════════════
+SECTION 12 — FIRMWARE & SOFTWARE TOOLS
+════════════════════════════════════════
+
+- **SPP (Service Pack for ProLiant)**: Bootable ISO containing all firmware/driver updates — always use SPP matching server gen
+- **Intelligent Provisioning**: F10 at POST — embedded provisioning/recovery tool
+- **SSACLI**: HPE Smart Storage Administrator CLI for SR controllers
+- **StorCLI2**: Broadcom CLI for MR controllers (replaces MegaCLI, StorCLI v1)
+- **arcconf**: Microchip/Adaptec CLI for SmartRAID controllers
+- **HPE OneView**: Data center management platform — manages firmware, profiles, templates
+- **SUM (Smart Update Manager)**: Manages firmware updates — online/offline modes
+- **iSUT (Integrated Smart Update Tools)**: OS-based firmware update agent
+
+════════════════════════════════════════
+RESPONSE MODE ENGINE — READ THIS CAREFULLY
+════════════════════════════════════════
+
+You are APEX — a super-intelligent HPE hardware expert. You are NOT just a diagnostic tool. You are a complete expert system. You must detect the user's INTENT and respond in the correct mode. NEVER force a diagnosis template on a question that is not reporting a problem.
+
+────────────────────────────────────────
+MODE 1 — EXPLAIN / TEACH
+Trigger: User asks "what is", "explain", "how does", "difference between", "tell me about", "what are the types", "define", "overview", any conceptual question
+Response style:
+- Give a clear, structured, expert-level explanation
+- Use headers, tables, diagrams in text, examples
+- Go deep — like a textbook written by a field engineer
+- NO diagnosis classification. NO root cause. NO remediation steps.
+- Example: "Explain RAID 5" → explain parity, stripe width, read/write performance, rebuild time, use cases, when NOT to use it. That's it.
+
+────────────────────────────────────────
+MODE 2 — COMPARE / RECOMMEND
+Trigger: "which is better", "compare", "vs", "should I use", "recommend", "best for"
+Response style:
+- Build a detailed comparison table
+- Give a clear recommendation with reasoning
+- Cover performance, cost, use case, compatibility
+- NO diagnosis format
+
+────────────────────────────────────────
+MODE 3 — HOW-TO / PROCEDURE
+Trigger: "how to configure", "steps to", "how do I", "procedure for", "walk me through", "guide me"
+Response style:
+- Numbered step-by-step procedure
+- Exact CLI commands with realistic values
+- Screenshots descriptions where helpful
+- Prerequisites listed at top
+- NO diagnosis format
+
+────────────────────────────────────────
+MODE 4 — AUTOMATION / SCRIPTING
+Trigger: User provides IP/credentials AND asks to perform a task, OR asks to "write a script", "automate", "write code for", "give me Python/Bash/PowerShell to"
+Response style:
+- Write COMPLETE, RUNNABLE automation code
+- Support Python (Redfish API / paramiko SSH / requests), Bash, PowerShell, Ansible as appropriate
+- Include: imports, connection handling, error handling, output formatting
+- For iLO tasks: use HPE Redfish REST API (python-redfish or requests library)
+- For RAID tasks: use SSACLI / StorCLI2 / arcconf wrapped in subprocess or SSH
+- For bulk operations: include loops, logging, CSV input support
+- Add comments explaining each step
+- Always show how to run the script
+- Examples of automation topics:
+  * iLO reset via Redfish API
+  * Get server health status via iLO REST
+  * Create RAID array via SSACLI
+  * Collect IML logs from multiple servers
+  * Bulk firmware update via SPP
+  * Drive health check script
+  * Fan/thermal monitoring script
+  * StorCLI2 RAID rebuild monitor
+
+────────────────────────────────────────
+MODE 5 — ISSUE DIAGNOSIS (only when a real problem is reported)
+Trigger: User describes a symptom, error, failure, unexpected behavior — "not working", "failed", "error", "not pinging", "showing fault", "degraded", "cannot connect", "issue with"
+Response style — use the 5-step protocol:
+1. 🔴/🟠/🟡/🟢/🔵/⚪ **Issue Classification** (Hardware Fault / Firmware Bug / Config Error / Environment Issue / Expected Behavior / Need More Info)
+2. **Root Cause** — most likely cause stated clearly
+3. **Remediation Steps** — numbered, exact commands
+4. **Verification** — how to confirm fix worked
+5. **Prevention** — how to avoid recurrence
+
+────────────────────────────────────────
+MODE 6 — QUICK FACT / SPEC LOOKUP
+Trigger: "what is the part number", "max drives supported", "port count", "cache size", "which slot", short factual queries
+Response style:
+- Direct answer first, then brief context
+- Use a table if multiple specs involved
+- No lengthy explanation unless asked
+
+────────────────────────────────────────
+UNIVERSAL RULES (apply to ALL modes):
+- Bold all model names, part numbers, CLI commands, tool names
+- Use tables for any comparison of 2+ items
+- Use code blocks for ALL CLI commands and scripts
+- Specify which tool applies: SSACLI (Smart Array SR) | StorCLI2 (Broadcom MR) | arcconf (Microchip)
+- Never be vague. Never say "it depends" without explaining what it depends on
+- Never add diagnosis classification to conceptual/educational questions
+- If user gives iLO IP + credentials → write working automation code for their task
+- Respond like the best HPE engineer + best developer combined in one
+
+You are APEX. Smarter than any single engineer. You teach, compare, script, automate, and diagnose — each in its own clean format.`;
+
+let messages = [];
+let isLoading = false;
+let API_KEY = '';
+let PROVIDER = 'anthropic';
+let MODEL = '';
+
+// ─── PROVIDER CONFIG ───
+const PROVIDERS = {
+  anthropic: {
+    name: 'Anthropic (Claude)',
+    url: 'https://api.anthropic.com/v1/messages',
+    defaultModel: 'claude-sonnet-4-20250514',
+    placeholder: 'sk-ant-...',
+    buildHeaders: (key) => ({
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    }),
+    buildBody: (model, sysprompt, msgs) => JSON.stringify({ model, max_tokens: 2048, system: sysprompt, messages: msgs }),
+    extractReply: (data) => data.content?.find(b => b.type === 'text')?.text || ''
+  },
+  openai: {
+    name: 'OpenAI (ChatGPT)',
+    url: 'https://api.openai.com/v1/chat/completions',
+    defaultModel: 'gpt-4o-mini',
+    placeholder: 'sk-...',
+    buildHeaders: (key) => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }),
+    buildBody: (model, sysprompt, msgs) => JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'system', content: sysprompt }, ...msgs] }),
+    extractReply: (data) => data.choices?.[0]?.message?.content || ''
+  },
+  google: {
+    name: 'Google Gemini',
+    url: (model, key) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+    defaultModel: 'gemini-2.0-flash',
+    placeholder: 'AIza...',
+    buildHeaders: () => ({ 'Content-Type': 'application/json' }),
+    buildBody: (model, sysprompt, msgs) => JSON.stringify({
+      system_instruction: { parts: [{ text: sysprompt }] },
+      contents: msgs.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }))
+    }),
+    extractReply: (data) => data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+  },
+  groq: {
+    name: 'Groq',
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    defaultModel: 'llama-3.3-70b-versatile',
+    placeholder: 'gsk_...',
+    buildHeaders: (key) => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }),
+    buildBody: (model, sysprompt, msgs) => JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'system', content: sysprompt }, ...msgs] }),
+    extractReply: (data) => data.choices?.[0]?.message?.content || ''
+  },
+  openrouter: {
+    name: 'OpenRouter',
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    defaultModel: 'meta-llama/llama-3.3-70b-instruct:free',
+    placeholder: 'sk-or-...',
+    buildHeaders: (key) => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}`, 'HTTP-Referer': 'https://hpe-apex.local' }),
+    buildBody: (model, sysprompt, msgs) => JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'system', content: sysprompt }, ...msgs] }),
+    extractReply: (data) => data.choices?.[0]?.message?.content || ''
+  },
+  perplexity: {
+    name: 'Perplexity AI',
+    url: 'https://api.perplexity.ai/chat/completions',
+    defaultModel: 'llama-3.1-sonar-large-128k-online',
+    placeholder: 'pplx-...',
+    buildHeaders: (key) => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }),
+    buildBody: (model, sysprompt, msgs) => JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'system', content: sysprompt }, ...msgs] }),
+    extractReply: (data) => data.choices?.[0]?.message?.content || ''
+  },
+  mistral: {
+    name: 'Mistral AI',
+    url: 'https://api.mistral.ai/v1/chat/completions',
+    defaultModel: 'mistral-small-latest',
+    placeholder: 'Your Mistral API key...',
+    buildHeaders: (key) => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }),
+    buildBody: (model, sysprompt, msgs) => JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'system', content: sysprompt }, ...msgs] }),
+    extractReply: (data) => data.choices?.[0]?.message?.content || ''
+  },
+  cohere: {
+    name: 'Cohere',
+    url: 'https://api.cohere.ai/v1/chat',
+    defaultModel: 'command-r-plus',
+    placeholder: 'Your Cohere API key...',
+    buildHeaders: (key) => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }),
+    buildBody: (model, sysprompt, msgs) => {
+      const history = msgs.slice(0, -1).map(m => ({ role: m.role === 'assistant' ? 'CHATBOT' : 'USER', message: m.content }));
+      const last = msgs[msgs.length - 1];
+      return JSON.stringify({ model, preamble: sysprompt, chat_history: history, message: last?.content || '' });
+    },
+    extractReply: (data) => data.text || ''
+  },
+  custom: {
+    name: 'Custom / Other',
+    url: '',
+    defaultModel: '',
+    placeholder: 'Your API key...',
+    buildHeaders: (key) => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }),
+    buildBody: (model, sysprompt, msgs) => JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'system', content: sysprompt }, ...msgs] }),
+    extractReply: (data) => data.choices?.[0]?.message?.content || data.content?.[0]?.text || JSON.stringify(data)
+  }
+};
+
+function onProviderChange() {
+  const p = document.getElementById('providerSelect').value;
+  PROVIDER = p;
+  const cfg = PROVIDERS[p];
+  document.getElementById('apikeyInput').placeholder = cfg.placeholder;
+  document.getElementById('modelInput').value = cfg.defaultModel;
+  // Load saved key for this provider
+  try {
+    const saved = localStorage.getItem(`hpe_apex_key_${p}`);
+    if (saved) {
+      API_KEY = saved;
+      document.getElementById('apikeyInput').value = saved.slice(0,10) + '••••••••••';
+      setKeyConnected(true);
+    } else {
+      API_KEY = '';
+      document.getElementById('apikeyInput').value = '';
+      setKeyConnected(false);
+    }
+  } catch(e) {}
+}
+
+function loadApiKey() {
+  try {
+    const savedProvider = localStorage.getItem('hpe_apex_provider') || 'anthropic';
+    PROVIDER = savedProvider;
+    document.getElementById('providerSelect').value = savedProvider;
+    const cfg = PROVIDERS[savedProvider];
+    document.getElementById('apikeyInput').placeholder = cfg.placeholder;
+    const savedModel = localStorage.getItem(`hpe_apex_model_${savedProvider}`) || cfg.defaultModel;
+    document.getElementById('modelInput').value = savedModel;
+    const savedKey = localStorage.getItem(`hpe_apex_key_${savedProvider}`);
+    if (savedKey) {
+      API_KEY = savedKey;
+      document.getElementById('apikeyInput').value = savedKey.slice(0,10) + '••••••••••';
+      setKeyConnected(true);
+    }
+  } catch(e) {}
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apikeyInput').value.trim();
+  const modelVal = document.getElementById('modelInput').value.trim();
+  if (!val || val.includes('•')) {
+    document.getElementById('apikeyStatus').textContent = '⚠ Enter your API key first';
+    return;
+  }
+  API_KEY = val;
+  MODEL = modelVal;
+  try {
+    localStorage.setItem(`hpe_apex_key_${PROVIDER}`, val);
+    localStorage.setItem(`hpe_apex_model_${PROVIDER}`, modelVal);
+    localStorage.setItem('hpe_apex_provider', PROVIDER);
+  } catch(e) {}
+  setKeyConnected(true);
+}
+
+function setKeyConnected(ok) {
+  const banner = document.getElementById('apikeyBanner');
+  const label = document.getElementById('apikeyLabel');
+  const status = document.getElementById('apikeyStatus');
+  const cfg = PROVIDERS[PROVIDER];
+  if (ok) {
+    banner.classList.add('connected');
+    label.textContent = `✓ ${cfg.name.toUpperCase()}`;
+    const modelName = document.getElementById('modelInput').value || cfg.defaultModel;
+    status.textContent = `Connected · ${modelName}`;
+  } else {
+    banner.classList.remove('connected');
+    label.textContent = '⚠ CONNECT AI PROVIDER';
+    status.textContent = 'Not connected';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('apikeyInput');
+  inp.addEventListener('focus', () => { if (API_KEY) inp.value = ''; });
+  inp.addEventListener('blur', () => {
+    if (API_KEY && !inp.value) inp.value = API_KEY.slice(0,10) + '••••••••••';
+  });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') saveApiKey(); });
+});
+
+function getTime() {
+  return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function quickTopic(text) {
+  document.getElementById('userInput').value = text;
+  autoResize(document.getElementById('userInput'));
+  sendMessage();
+}
+
+function clearChat() {
+  messages = [];
+  const inner = document.getElementById('chatInner');
+  inner.innerHTML = `
+    <div class="welcome-screen" id="welcomeScreen">
+      <div class="welcome-icon">
+        <svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:var(--hpe-green);fill:none;stroke-width:1.5">
+          <rect x="2" y="2" width="20" height="8" rx="1"/>
+          <rect x="2" y="14" width="20" height="8" rx="1"/>
+          <circle cx="6" cy="6" r="1" fill="currentColor" stroke="none"/>
+          <circle cx="6" cy="18" r="1" fill="currentColor" stroke="none"/>
+          <line x1="10" y1="6" x2="18" y2="6"/>
+          <line x1="10" y1="18" x2="18" y2="18"/>
+        </svg>
+      </div>
+      <div><div class="welcome-title">HPE Server <span>AI Expert</span></div></div>
+      <div class="welcome-desc">Your professional-grade AI assistant for HPE server hardware, Broadcom MR controllers, Microchip SmartRAID, and intelligent issue diagnosis. Tell me any problem — I'll identify the root cause and give you exact fix steps.</div>
+      <div class="welcome-tags">
+        <span class="welcome-tag">ProLiant Gen10/Gen11</span>
+        <span class="welcome-tag">Broadcom MR Controllers</span>
+        <span class="welcome-tag">Microchip SmartRAID</span>
+        <span class="welcome-tag">Issue Diagnosis Engine</span>
+        <span class="welcome-tag">UBM Types 1–4</span>
+        <span class="welcome-tag">iLO 5 / iLO 6</span>
+        <span class="welcome-tag">StorCLI2 / SSACLI / arcconf</span>
+        <span class="welcome-tag">Network Troubleshooting</span>
+        <span class="welcome-tag">Drive LEDs & Faults</span>
+        <span class="welcome-tag">RAID Config</span>
+      </div>
+    </div>`;
+}
+
+function appendMessage(role, content) {
+  const welcome = document.getElementById('welcomeScreen');
+  if (welcome) welcome.remove();
+
+  const inner = document.getElementById('chatInner');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  div.id = role === 'assistant' ? 'lastAI' : '';
+
+  const avatar = role === 'assistant'
+    ? `<div class="msg-avatar ai">HPE</div>`
+    : `<div class="msg-avatar user">YOU</div>`;
+
+  const name = role === 'assistant'
+    ? `<span class="msg-name ai">HPE AI EXPERT</span>`
+    : `<span class="msg-name user">ENGINEER</span>`;
+
+  const bubbleClass = role === 'assistant' ? 'ai' : 'user';
+  const rendered = role === 'assistant' ? renderMarkdown(content) : escapeHtml(content);
+
+  div.innerHTML = `
+    ${avatar}
+    <div class="msg-body">
+      <div class="msg-meta">
+        ${name}
+        <span class="msg-time">${getTime()}</span>
+      </div>
+      <div class="msg-bubble ${bubbleClass}">${rendered}</div>
+    </div>`;
+
+  inner.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function showTyping() {
+  const welcome = document.getElementById('welcomeScreen');
+  if (welcome) welcome.remove();
+
+  const inner = document.getElementById('chatInner');
+  const div = document.createElement('div');
+  div.className = 'message assistant';
+  div.id = 'typingIndicator';
+  div.innerHTML = `
+    <div class="msg-avatar ai">HPE</div>
+    <div class="msg-body">
+      <div class="msg-meta"><span class="msg-name ai">HPE AI EXPERT</span></div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <span class="typing-label">ANALYZING QUERY...</span>
+      </div>
+    </div>`;
+  inner.appendChild(div);
+  scrollToBottom();
+}
+
+function removeTyping() {
+  const t = document.getElementById('typingIndicator');
+  if (t) t.remove();
+}
+
+function scrollToBottom() {
+  const wrapper = document.getElementById('chatWrapper');
+  wrapper.scrollTop = wrapper.scrollHeight;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderMarkdown(text) {
+  let html = text
+    // Code blocks
+    .replace(/```([\s\S]*?)```/g, (_, code) => `<pre>${escapeHtml(code.trim())}</pre>`)
+    // Inline code
+    .replace(/`([^`]+)`/g, (_, code) => `<code>${escapeHtml(code)}</code>`)
+    // Headers
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // Bold
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Blockquote
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    // Horizontal rule
+    .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:12px 0"/>')
+    // Unordered lists
+    .replace(/^[\-\*] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    // Ordered lists
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    // Tables (simple pipe tables)
+    .replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)+)/g, (match, header, rows) => {
+      const headers = header.split('|').filter(s => s.trim()).map(s => `<th>${s.trim()}</th>`).join('');
+      const tableRows = rows.trim().split('\n').map(row => {
+        const cells = row.split('|').filter(s => s.trim()).map(s => `<td>${s.trim()}</td>`).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+      return `<table><thead><tr>${headers}</tr></thead><tbody>${tableRows}</tbody></table>`;
+    })
+    // Paragraphs
+    .split(/\n\n+/)
+    .map(block => {
+      if (block.startsWith('<h') || block.startsWith('<ul') || block.startsWith('<ol') || block.startsWith('<pre') || block.startsWith('<table') || block.startsWith('<blockquote') || block.startsWith('<hr')) return block;
+      return `<p>${block.replace(/\n/g, '<br/>')}</p>`;
+    })
+    .join('');
+
+  return html;
+}
+
+async function sendMessage() {
+  if (isLoading) return;
+
+  if (!API_KEY) {
+    document.getElementById('apikeyStatus').textContent = '⚠ Paste your API key and click CONNECT first!';
+    document.getElementById('apikeyInput').focus();
+    return;
+  }
+
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  appendMessage('user', text);
+  messages.push({ role: 'user', content: text });
+
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+  showTyping();
+
+  try {
+    const cfg = PROVIDERS[PROVIDER];
+    const model = document.getElementById('modelInput').value.trim() || cfg.defaultModel;
+    const urlRaw = cfg.url;
+    const url = typeof urlRaw === 'function' ? urlRaw(model, API_KEY) : urlRaw;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: cfg.buildHeaders(API_KEY),
+      body: cfg.buildBody(model, SYSTEM_PROMPT, messages)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const errMsg = data.error?.message || data.message || `API error ${response.status}`;
+      if (response.status === 401 || response.status === 403) {
+        API_KEY = '';
+        try { localStorage.removeItem(`hpe_apex_key_${PROVIDER}`); } catch(e) {}
+        setKeyConnected(false);
+        throw new Error(`Invalid API key for ${PROVIDERS[PROVIDER].name}. Please re-enter your key.`);
+      }
+      throw new Error(errMsg);
+    }
+
+    const reply = cfg.extractReply(data);
+    removeTyping();
+    messages.push({ role: 'assistant', content: reply });
+    appendMessage('assistant', reply);
+
+  } catch (err) {
+    removeTyping();
+    const inner = document.getElementById('chatInner');
+    const errDiv = document.createElement('div');
+    errDiv.className = 'error-bubble';
+    errDiv.style.cssText = 'max-width:820px;margin:0 auto';
+    errDiv.textContent = `⚠ ERROR: ${err.message}`;
+    inner.appendChild(errDiv);
+    scrollToBottom();
+  } finally {
+    isLoading = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('userInput').focus();
+  }
+}
+
+// Focus input on load + restore API key
+window.addEventListener('load', () => {
+  loadApiKey();
+  document.getElementById('userInput').focus();
+});
+</script>
+</body>
+</html>
